@@ -38,7 +38,7 @@ def plot_turbines(ax, layout_x, layout_y, yaw_angles, rotor_diameters, color=Non
     """
 
     # Correct for the wind direction
-    yaw_angles = np.array(yaw_angles)  # - wind_direction - 270
+    yaw_angles = np.array(yaw_angles) - wind_direction - 270 #dh. activate
 
     if color is None:
         color = "k"
