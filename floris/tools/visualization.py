@@ -38,7 +38,6 @@ def plot_turbines(
 ):
     """
     Plot wind plant layout from turbine locations.
-
     Args:
         ax (:py:class:`matplotlib.pyplot.axes`): Figure axes.
         layout_x (np.array): Wind turbine locations (east-west).
@@ -51,6 +50,9 @@ def plot_turbines(
     if color is None:
         color = "k"
 
+    fix_orientation=True #dh. TODO: how to pass this argument.
+    if fix_orientation : wind_direction = np.ones_like(wind_direction)*270 #dh
+    
     coordinates_array = np.array([[x, y, 0.0] for x, y in list(zip(layout_x, layout_y))])
     layout_x, layout_y, _ = rotate_coordinates_rel_west(np.array([wind_direction]), coordinates_array)
 
@@ -67,7 +69,6 @@ def plot_turbines_with_fi(fi: FlorisInterface, ax=None, color=None, yaw_angles=N
     """
     Wrapper function to plot turbines which extracts the data
     from a FLORIS interface object
-
     Args:
         fi (:py:class:`floris.tools.flow_data.FlowData`):
                 FlowData object.
@@ -78,12 +79,20 @@ def plot_turbines_with_fi(fi: FlorisInterface, ax=None, color=None, yaw_angles=N
         fig, ax = plt.subplots()
     if yaw_angles is None:
         yaw_angles = fi.floris.farm.yaw_angles
+    
+    #dh. after cal_wake. rotor_diameters shape has changed.   
+    try:
+        np.shape(fi.floris.farm.rotor_diameters)[1] 
+        rd=fi.floris.farm.rotor_diameters[0,0] # after calculate_wake with wd or ws is over 2
+    except:      
+        rd=fi.floris.farm.rotor_diameters # after FI, reinitialize, etc...
+        
     plot_turbines(
         ax,
         fi.layout_x,
         fi.layout_y,
         yaw_angles[0, 0],
-        fi.floris.farm.rotor_diameters[0, 0],
+        rotor_diameters=rd, #dh
         color=color,
         wind_direction=fi.floris.flow_field.wind_directions[0],
     )
@@ -94,7 +103,6 @@ def add_turbine_id_labels(fi: FlorisInterface, ax: plt.Axes, **kwargs):
     Adds index labels to a plot based on the given FlorisInterface.
     See the pyplot.annotate docs for more info: https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.annotate.html.
     kwargs are passed to Text (https://matplotlib.org/stable/api/text_api.html#matplotlib.text.Text).
-
     Args:
         fi (FlorisInterface): Simulation object to get the layout and index information.
         ax (plt.Axes): Axes object to add the labels.
@@ -110,7 +118,6 @@ def add_turbine_id_labels(fi: FlorisInterface, ax: plt.Axes, **kwargs):
 def line_contour_cut_plane(cut_plane, ax=None, levels=None, colors=None, **kwargs):
     """
     Visualize a cut_plane as a line contour plot.
-
     Args:
         cut_plane (:py:class:`~.tools.cut_plane.CutPlane`):
             CutPlane Object.
@@ -156,7 +163,6 @@ def visualize_cut_plane(
 ):
     """
     Generate pseudocolor mesh plot of the cut_plane.
-
     Args:
         cut_plane (:py:class:`~.tools.cut_plane.CutPlane`): 2D
             plane through wind plant.
@@ -168,7 +174,6 @@ def visualize_cut_plane(
             contours. Defaults to None.
         cmap (str, optional): Colormap specifier. Defaults to
             'coolwarm'.
-
     Returns:
         im (:py:class:`matplotlib.plt.pcolormesh`): Image handle.
     """
@@ -224,7 +229,6 @@ def visualize_cut_plane(
 def visualize_quiver(cut_plane, ax=None, min_speed=None, max_speed=None, downSamp=1, **kwargs):
     """
     Visualize the in-plane flows in a cut_plane using quiver.
-
     Args:
         cut_plane (:py:class:`~.tools.cut_plane.CutPlane`): 2D
             plane through wind plant.
@@ -237,7 +241,6 @@ def visualize_quiver(cut_plane, ax=None, min_speed=None, max_speed=None, downSam
         downSamp (int, optional): Down sample the number of quiver arrows
             from underlying grid.
         **kwargs: Additional parameters to pass to `ax.streamplot`.
-
     Returns:
         im (:py:class:`matplotlib.plt.pcolormesh`): Image handle.
     """
@@ -270,7 +273,6 @@ def visualize_quiver(cut_plane, ax=None, min_speed=None, max_speed=None, downSam
 def reverse_cut_plane_x_axis_in_plot(ax):
     """
     Shortcut method to reverse direction of x-axis.
-
     Args:
         ax (:py:class:`matplotlib.pyplot.axes`): Figure axes.
     """
@@ -292,7 +294,6 @@ def plot_rotor_values(
     """Plots the gridded turbine rotor values. This is intended to be used for
     understanding the differences between two sets of values, so each subplot can be
     used for inspection of what values are differing, and under what conditions.
-
     Parameters:
         values (np.ndarray): The 5-dimensional array of values to plot. Should be:
             N wind directions x N wind speeds x N turbines X N rotor points X N rotor points.
@@ -301,12 +302,10 @@ def plot_rotor_values(
             further editing, default False.
         save_path (str | None): Where to save the figure, if a value is provided.
         t_range is turbine range; i.e. the turbine index to loop over
-
     Returns:
         None | tuple[plt.figure, plt.axes, plt.axis, plt.colorbar]: If
         `return_fig_objects` is `False, then `None` is returned`, otherwise the primary
         figure objects are returned for custom editing.
-
     Example:
         from floris.tools.visualization import plot_rotor_values
         plot_rotor_values(floris.flow_field.u, wd_index=0, ws_index=0)
