@@ -34,7 +34,7 @@ fi.reinitialize(layout_x=layout_x, layout_y=layout_y, turbine_type=turbine_type)
 # plot with yawangle, fi info
 if 1 : # dh. 화면에 yaw, fi 정보도 출력
     # wind directions and speeds for plot
-    wd = [[i] for i in np.arange(0,360,90)];  
+    wd = [[i] for i in np.arange(45,360,90)];  
     ws = [8.0]; 
     if 0: ws = [[i] for i in np.arange(3,25,1.0)]; 
     
@@ -48,7 +48,7 @@ if 1 : # dh. 화면에 yaw, fi 정보도 출력
     n_col=2
     fig, ax_list = plt.subplots( round(len(wd)/n_col+0.5), n_col, figsize=(16, 8))
     ax_list = ax_list.flatten()
-    res=200;
+    res=200
     for i in range(len(wd)):
         # fi update for text on WTGs.
         # at the end of fi.calculate_horizontal_plane, restoring fi to previous,
@@ -63,7 +63,7 @@ if 1 : # dh. 화면에 yaw, fi 정보도 출력
         ax=ax_list[i];
         visualize_cut_plane(horizontal_plane, ax=ax, title="Wind direction "+str(wd[i])+"deg", color_bar=True);
         plot_turbines_with_fi(ax=ax_list[i],fi=fi)  # , wd=wd[i] 
-        FarmP = fi.get_farm_power()/1000 # 이거??
+        FarmP = fi.get_farm_power()/1000
         plt.xlabel(f'{FarmP[0,0]:.3f}'+' KW')
         
         #dh. text on WTGs

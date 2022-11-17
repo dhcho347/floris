@@ -51,8 +51,10 @@ def plot_turbines(
         color = "k"
 
     fix_orientation=True #dh. TODO: how to pass this argument.
-    if fix_orientation : wind_direction = np.ones_like(wind_direction)*270 #dh
-    
+    if fix_orientation :    
+        yaw_angles = np.array(yaw_angles) - wind_direction -270 #dh. activate     
+        wind_direction = np.ones_like(wind_direction)*270 #dh        
+      
     coordinates_array = np.array([[x, y, 0.0] for x, y in list(zip(layout_x, layout_y))])
     layout_x, layout_y, _ = rotate_coordinates_rel_west(np.array([wind_direction]), coordinates_array)
 
