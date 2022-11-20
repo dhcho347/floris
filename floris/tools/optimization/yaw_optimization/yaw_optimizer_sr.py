@@ -163,6 +163,10 @@ class YawOptimizationSR(YawOptimization):
         # Initialize yaw angles to evaluate, 'Ny' times the wind rose
         Ny = self.Ny_passes[pass_depth]
         evaluation_grid = np.tile(self._yaw_angles_opt_subset, (Ny, 1, 1, 1))
+        
+        if 1: #dh. # yaw angles are evaluated in first iteration
+            lb=self._minimum_yaw_angle_subset[0,0,0]; ub=self._maximum_yaw_angle_subset[0,0,0]
+            yaw_in_first_pass = np.linspace([lb],[ub],self.Ny_passes[0])
 
         # Get a list of the turbines in order of x and sort front to back
         for iw in range(self._nwinddirections_subset):
@@ -196,9 +200,14 @@ class YawOptimizationSR(YawOptimization):
                 yaw_angles_subset = np.linspace(yaw_lb, yaw_ub, Ny)
             else:
                 # Remove middle point: was evaluated in previous iteration
-                c = int(Ny / 2)  # Central point (to remove)
-                ids = [*list(range(0, c)), *list(range(c + 1, Ny + 1))]
-                yaw_angles_subset = np.linspace(yaw_lb, yaw_ub, Ny + 1)[ids]
+                if 1: 
+                    yaw_angles_subset = np.linspace(yaw_lb, yaw_ub, Ny + 1)
+                    if (yaw_angles_subset == yaw_in_first_pass).all(): yaw_angles_subset=yaw_angles_subset[1:]
+                    else : yaw_angles_subset = np.array([i for i in yaw_angles_subset if i not in yaw_in_first_pass]) #dh
+                else: 
+                    c = int(Ny / 2)  # Central point (to remove)
+                    ids = [*list(range(0, c)), *list(range(c + 1, Ny + 1))]  
+                    yaw_angles_subset = np.linspace(yaw_lb, yaw_ub, Ny + 1)[ids]
 
             evaluation_grid[:, iw, :, turbid] = yaw_angles_subset
 
