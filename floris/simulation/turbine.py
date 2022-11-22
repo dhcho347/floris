@@ -381,6 +381,13 @@ class Turbine(BaseClass):
             bounds_error=False,
         )
         inner_power = 0.5 * self.rotor_area * self.fCp_interp(wind_speeds) * self.generator_efficiency * wind_speeds ** 3
+        #dh
+        if self.turbine_type =='nrel_5MW':
+            inner_power[ (wind_speeds>=11.4) * (wind_speeds<=25.0)]=5000000/1.225
+        if self.turbine_type =='iea_10MW':
+            inner_power[ (wind_speeds>=11) * (wind_speeds<=25.0)]=10000000/1.225
+        if self.turbine_type =='iea_15MW':
+            inner_power[ (wind_speeds>=10.59) * (wind_speeds<=25.0)]=15000000/1.225
         self.power_interp = interp1d(
             wind_speeds,
             inner_power
