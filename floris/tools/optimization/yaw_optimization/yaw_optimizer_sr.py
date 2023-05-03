@@ -199,12 +199,14 @@ class YawOptimizationSR(YawOptimization):
                 # Evaluate all possible coordinates
                 yaw_angles_subset = np.linspace(yaw_lb, yaw_ub, Ny)
             else:
-                # Remove middle point: was evaluated in previous iteration
                 if 1: 
                     yaw_angles_subset = np.linspace(yaw_lb, yaw_ub, Ny + 1)
-                    if (yaw_angles_subset == yaw_in_first_pass).all(): yaw_angles_subset=yaw_angles_subset[1:]
-                    else : yaw_angles_subset = np.array([i for i in yaw_angles_subset if i not in yaw_in_first_pass]) #dh
+                    if (yaw_angles_subset.flat[0],yaw_angles_subset.flat[-1])==(self.minimum_yaw_angle.flat[0],self.maximum_yaw_angle.flat[0]):
+                            yaw_angles_subset = yaw_angles_subset[:Ny]                     
+                    else:
+                        yaw_angles_subset = np.array([i for i in yaw_angles_subset if i not in yaw_in_first_pass]) #dh
                 else: 
+                    # Remove middle point: was evaluated in previous iteration
                     c = int(Ny / 2)  # Central point (to remove)
                     ids = [*list(range(0, c)), *list(range(c + 1, Ny + 1))]  
                     yaw_angles_subset = np.linspace(yaw_lb, yaw_ub, Ny + 1)[ids]
